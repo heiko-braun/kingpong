@@ -22,3 +22,7 @@ run: $(TARGET)
 # Test target: run Go tests for the project
 test:
 	$(GO) test ./...
+
+images:	
+	podman build -t ikebraun/pong -f docker_pong .
+	podman build -t ikebraun/ping -f docker_ping .
