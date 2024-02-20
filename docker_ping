@@ -6,7 +6,14 @@ WORKDIR /app
  
 # Copies everything from your root directory into /app
 COPY . .
- 
+
+# ping 
+ENV PORT=8080
+
+# pong
+ENV PONG_HOST=pong
+ENV PONG_PORT=8080 
+
 # Installs Go dependencies
 RUN go mod download
  
@@ -14,8 +21,7 @@ RUN go mod download
 RUN make build
  
 # Tells Docker which network port your container listens on
-EXPOSE 8080
+EXPOSE $PORT
  
 # Specifies the executable command that runs when the container starts
-ENTRYPOINT ["/app/pingpong", "-port", "8080"]
-CMD ["-asPing", "-pongHost", "pong", "-pongPort", "8080"]
+ENTRYPOINT ["/bin/bash", "-c", "/app/pingpong -asPing -port $PORT -pongHost $PONG_HOST -pongPort $PONG_PORT"]
