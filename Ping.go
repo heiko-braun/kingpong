@@ -1,18 +1,20 @@
-package ping
+package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
 
 	"github.com/gorilla/mux"
 )
 
-const retries = 100
+const retries = 3
 const jsonAnswer = "{\"length\": %v, \"code\": %v, \"retries\": %v, \"duration\": %v}"
 
 var pongUrl string
+
+type Ping struct{}
 
 func get(url string) (content string, code int, err error) {
 	res, err := http.Get(url)
@@ -20,7 +22,7 @@ func get(url string) (content string, code int, err error) {
 		return "", http.StatusServiceUnavailable, err
 	}
 
-	message, err := ioutil.ReadAll(res.Body)
+	message, err := io.ReadAll(res.Body)
 	if err != nil {
 		return "", http.StatusServiceUnavailable, err
 	}
@@ -32,6 +34,7 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 
 	for i := 1; i <= retries; i++ {
+
 		message, _, err := get(pongUrl + "/pong/" + params["length"])
 
 		if err == nil {
@@ -67,10 +70,10 @@ func mpingHandler(w http.ResponseWriter, r *http.Request) {
 
 // Start starts the ping service on the given port. ponghost and pongport are the
 // connection details of the pong service.
-func Start(port int, ponghost string, pongport int) {
+func (p Ping) Start(port int, ponghost string, pongport int) {
 	myport := fmt.Sprintf(":%v", port)
 
-	pongUrl = fmt.Sprintf("http://%s:%v", ponghost, pongport)
+	pongUrl = fmt.Sprintf("%s:%v", ponghost, pongport)
 
 	r := mux.NewRouter()
 	r.HandleFunc("/ping/{length:[0-9]+}", pingHandler)
@@ -78,5 +81,6 @@ func Start(port int, ponghost string, pongport int) {
 
 	fmt.Printf("Ping service is up and listening on port %v\n", port)
 	fmt.Printf("Pong service assumed to be reachable at %s\n", pongUrl)
+
 	http.ListenAndServe(myport, r)
 }

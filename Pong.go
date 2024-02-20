@@ -1,4 +1,4 @@
-package pong
+package main
 
 import (
 	"bytes"
@@ -8,6 +8,8 @@ import (
 
 	"github.com/gorilla/mux"
 )
+
+type Pong struct{}
 
 func pongHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
@@ -25,7 +27,7 @@ func pongHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // Start starts the pong service on the given port.
-func Start(port int) {
+func (p Pong) Start(port int) {
 	r := mux.NewRouter()
 	r.HandleFunc("/pong/{length:[0-9]+}", pongHandler)
 	sport := fmt.Sprintf(":%v", port)
