@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"time"
 
@@ -71,8 +72,7 @@ func mpingHandler(w http.ResponseWriter, r *http.Request) {
 // Start starts the ping service on the given port. ponghost and pongport are the
 // connection details of the pong service.
 func (p Ping) Start(port int, ponghost string, pongport int) {
-	myport := fmt.Sprintf(":%v", port)
-
+	myport := fmt.Sprintf("0.0.0.0:%v", port)
 	pongUrl = fmt.Sprintf("%s:%v", ponghost, pongport)
 
 	r := mux.NewRouter()
@@ -82,5 +82,12 @@ func (p Ping) Start(port int, ponghost string, pongport int) {
 	fmt.Printf("Ping service is up and listening on port %v\n", port)
 	fmt.Printf("Pong service assumed to be reachable at %s\n", pongUrl)
 
-	http.ListenAndServe(myport, r)
+	srv := &http.Server{
+		Handler:      r,
+		Addr:         myport,
+		WriteTimeout: 15 * time.Second,
+		ReadTimeout:  15 * time.Second,
+	}
+
+	log.Fatal(srv.ListenAndServe())
 }

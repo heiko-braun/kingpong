@@ -17,4 +17,4 @@ In essence, it allows you to start either a ping service, or a pong one.
     	Sets the port (default 8080)
 ```
 
-Packaged as containers, you can launch to pods, one invoking on the other.
+Packaged as containers, you can launch two pods, `ping` invoking on `pong` and returning the repsonse.
