@@ -9,6 +9,8 @@ all: build
 
 # Rule to build the target executable
 build: 
+	go vet
+	go fmt
 	go build $(GOFLAGS) -o $(TARGET) *.go
 
 # Clean target: remove the target executable
